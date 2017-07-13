@@ -1,11 +1,10 @@
-//Code Helloword SigFox
 #include <SigFox.h>//declaration of SigFox librairies needed to send message with SigFox
 #include <ArduinoLowPower.h>//Useful to switchoff the board
 #define TIMEOFF 1*60*1000// set the delay to 15 minutes
 
 int debug = false;
 byte buf[12];
-int tmp;
+int tmp=0;
 void setup() 
 {
   Serial.begin(9600);
@@ -14,8 +13,7 @@ void setup()
   delay(100);
   if (!SigFox.begin())
   {
-    //try rebooting if something is wrong
-    reboot();
+    reboot(); //try rebooting if something is wrong
   }
   SigFox.end();// Send module to standby until we need to send a message
   if (debug) {
@@ -28,20 +26,19 @@ void reboot()
   NVIC_SystemReset();
   while(1);
 }
-void cleararray(byte Array[])
+void cleararray(byte arr[])
 {
-  for(int i=0; i<sizeof(Array)/sizeof(byte);i++)
+  for(int i=0; i<sizeof(arr);i++)
   {
-    Array[i]=0;
+    arr[i]=0;
   }
 }
 void loop() 
 {
-    tmp=0;
-    while(buf[tmp]!=0){tmp++;}
     if(!SigFox.begin())
     {
-      buf[tmp]=1;
+      buf[tmp++]=1;
+      if(tmp>=12){tmp=0;}
       return;
     }
     delay(100);//need to wait after the first configuration ( 100ms ) 
@@ -49,10 +46,13 @@ void loop()
     SigFox.write(buf);
     if(!SigFox.endPacket())
     {
-      buf[tmp]=2;
+      buf[tmp++]=2;
+      if(tmp>=12){tmp=0;}
       return;
     }
     cleararray(buf);
     SigFox.end();
-    LowPower.sleep(TIMEOFF);//enter in sleep mode
+    delay(TIMEOFF);
+    //LowPower.sleep(TIMEOFF);//enter in sleep mode
 }
+
