@@ -2,15 +2,11 @@
 #include <ArduinoLowPower.h>//Useful to switchoff the board
 #define TIMEOFF 1*60*1000// set the delay to 15 minutes
 
-int debug = false;
+int debug = true;
 byte buf[12];
 int tmp=0;
 void setup() 
 {
-  Serial.begin(9600);
-  while(!Serial1){}; // wait for serial port to connect. Needed for native USB
-
-  delay(100);
   if (!SigFox.begin())
   {
     reboot(); //try rebooting if something is wrong
@@ -18,9 +14,14 @@ void setup()
   SigFox.end();// Send module to standby until we need to send a message
   if (debug) {
     SigFox.debug();// Enable debugging. Enabling the debugging all the power saving features are disabled and the led indicated as signaling pin (LED_BUILTIN as default) is used during transmission and receive events.
+    Serial.begin(9600);
+    while(!Serial1){}; // wait for serial port to connect. Needed for native USB
   }
+  delay(100);
   cleararray(buf);
+  //LowPower.attachInterruptWakeup(RTC_ALARM_WAKEUP, dummy, CHANGE);
 }
+//void dummy(){}
 void reboot()
 {
   NVIC_SystemReset();
@@ -38,15 +39,17 @@ void loop()
     if(!SigFox.begin())
     {
       buf[tmp++]=1;
+      Serial.print(buf[tmp-1]);
       if(tmp>=12){tmp=0;}
       return;
     }
     delay(100);//need to wait after the first configuration ( 100ms ) 
     SigFox.beginPacket();
     SigFox.write(buf);
-    if(!SigFox.endPacket())
+    if(SigFox.endPacket())
     {
       buf[tmp++]=2;
+      Serial.print(buf[tmp-1]);
       if(tmp>=12){tmp=0;}
       return;
     }
