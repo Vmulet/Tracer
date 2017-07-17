@@ -1,6 +1,6 @@
 #include <SigFox.h>//declaration of SigFox librairies needed to send message with SigFox
 #include <ArduinoLowPower.h>//Useful to switchoff the board
-#define TIMEOFF 1*60*1000// set the delay to 15 minutes
+#define TIMEOFF 15*60*1000// set the delay to 15 minutes
 
 int debug = true;
 byte buf[12];
