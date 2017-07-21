@@ -1,10 +1,11 @@
 #include <SigFox.h>//declaration of SigFox librairies needed to send message with SigFox
 #include <ArduinoLowPower.h>//Useful to switchoff the board
-#define TIMEOFF 15*60*1000// set the delay to 15 minutes
+#define TIMEOFF 1*60*1000// set the delay to 1 minutes
 
-int debug = true;
+int debug = false;
 byte buf[12];
 int tmp=0;
+int minutes=15;
 void setup() 
 {
   if (!SigFox.begin())
@@ -17,7 +18,7 @@ void setup()
     Serial.begin(9600);
     while(!Serial1){}; // wait for serial port to connect. Needed for native USB
   }
-  delay(100);
+  delay(10000);
   cleararray(buf);
   //LowPower.attachInterruptWakeup(RTC_ALARM_WAKEUP, dummy, CHANGE);
 }
@@ -55,7 +56,8 @@ void loop()
     }
     cleararray(buf);
     SigFox.end();
-    delay(TIMEOFF);
-    //LowPower.sleep(TIMEOFF);//enter in sleep mode
+    //delay(TIMEOFF);
+    for(int i=0;i<minutes;i++){ LowPower.sleep(TIMEOFF);}
 }
+
 
